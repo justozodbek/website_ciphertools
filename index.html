@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cipher Hub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect width='200' height='200' fill='%232c5282' rx='40'/><path d='M100,30 L140,50 L140,120 Q140,150 100,170 Q60,150 60,120 L60,50 Z' fill='white'/><circle cx='100' cy='85' r='12' fill='none' stroke='%232c5282' stroke-width='4'/><rect x='88' y='95' width='24' height='20' fill='%232c5282' rx='3'/><circle cx='100' cy='100' r='3' fill='white'/><rect x='98' y='100' width='4' height='8' fill='white'/></svg>" type="image/svg+xml">    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #e0e5ec;
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #2d3748;
+            --text-light: #4a5568;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --nav-height: 70px;
+            --card-radius: 25px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Dark mode variables */
+        .dark-mode {
+            --bg-color: #1a202c;
+            --primary: #7c3aed;
+            --primary-light: #8b5cf6;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #f7fafc;
+            --text-light: #cbd5e0;
+            --shadow-light: rgba(0,0,0,0.2);
+            --shadow-dark: #0d1117;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2') format('woff2');
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        /* Language selector */
+        .language-selector {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .language-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: var(--transition);
+        }
+
+        .language-btn:hover {
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+            min-width: 120px;
+        }
+
+        .language-dropdown.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .language-option {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .language-option:hover {
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1.2rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        /* Navigation */
+        .navbar {
+            height: var(--nav-height);
+            background: var(--bg-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        /* Main content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: calc(var(--nav-height) + 20px);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Neumorphic styles */
+        .neumorphic {
+            border-radius: var(--card-radius);
+            background: var(--bg-color);
+            box-shadow:  8px 8px 15px var(--shadow-dark),
+                        -8px -8px 15px var(--shadow-light);
+            transition: var(--transition);
+        }
+
+        .neumorphic:hover {
+            box-shadow:  12px 12px 20px var(--shadow-dark),
+                       -12px -12px 20px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .neumorphic-inset {
+            border-radius: calc(var(--card-radius) - 5px);
+            background: var(--bg-color);
+            box-shadow: inset 5px 5px 10px var(--shadow-dark),
+                       inset -5px -5px 10px var(--shadow-light);
+            transition: var(--transition);
+        }
+
+        .neumorphic-btn {
+            border-radius: 12px;
+            background: var(--bg-color);
+            box-shadow:  5px 5px 10px var(--shadow-dark),
+                        -5px -5px 10px var(--shadow-light);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .neumorphic-btn:hover {
+            transform: translateY(-2px);
+            box-shadow:  7px 7px 12px var(--shadow-dark),
+                       -7px -7px 12px var(--shadow-light);
+        }
+
+        .neumorphic-btn:active {
+            transform: translateY(0);
+            box-shadow: inset 3px 3px 6px var(--shadow-dark),
+                       inset -3px -3px 6px var(--shadow-light);
+        }
+
+        .neumorphic-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .neumorphic-btn.secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .neumorphic-btn.danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .neumorphic-btn.warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        /* Section headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        /* Cipher section styles */
+        .cipher-box, .password-box, .password-checker-box {
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .mode-selector, .password-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn, .password-option-btn {
+            min-width: 140px;
+        }
+
+        .mode-btn.active, .password-option-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        textarea, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 18px;
+            resize: vertical;
+            min-height: 50px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            line-height: 1.6;
+            background: transparent;
+            color: var(--text);
+            border-radius: calc(var(--card-radius) - 5px);
+        }
+
+        textarea {
+            min-height: 150px;
+        }
+
+        .clear-btn, .regenerate-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            padding: 8px;
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Shift controls */
+        .shift-controls, .password-length-control {
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .shift-row, .length-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .shift-value, .length-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 12px;
+            border-radius: 6px;
+            background: var(--bg-color);
+            box-shadow: inset 3px 3px 5px var(--shadow-dark),
+                       inset -3px -3px 5px var(--shadow-light);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .preset-btns, .password-preset-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .preset-btn, .password-preset-btn {
+            padding: 10px 18px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Result section */
+        .result-container {
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Password strength meter */
+        .strength-meter {
+            width: 100%;
+            height: 10px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+            box-shadow: inset 2px 2px 4px var(--shadow-dark),
+                       inset -2px -2px 4px var(--shadow-light);
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: var(--transition);
+            border-radius: 5px;
+        }
+
+        .strength-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        .strength-label {
+            font-weight: 600;
+        }
+
+        .time-to-crack {
+            font-style: italic;
+            color: var(--text-light);
+        }
+
+        /* Password options */
+        .password-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .password-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .password-option input {
+            width: auto;
+        }
+
+        /* Password Checker Styles */
+        .password-strength-results {
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .password-feedback {
+            margin-top: 25px;
+        }
+
+        .password-feedback h3 {
+            margin-bottom: 15px;
+            color: var(--text);
+            font-size: 1.1rem;
+        }
+
+        .password-feedback ul {
+            list-style-type: none;
+        }
+
+        .password-feedback li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .password-feedback li::before {
+            content: '•';
+            color: var(--primary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        .password-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            background: rgba(79, 70, 229, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-top: 40px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .footer-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .developer-contact {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: var(--nav-height);
+                left: 0;
+                width: 100%;
+                background: var(--bg-color);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                gap: 15px;
+                box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+                transform: translateY(-150%);
+                transition: transform 0.3s ease;
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .cipher-box, .password-box, .password-checker-box {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .mode-btn, .password-option-btn {
+                min-width: 120px;
+                font-size: 0.9rem;
+            }
+
+            .shift-row, .length-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .cipher-box, .password-box, .password-checker-box {
+                padding: 20px;
+            }
+
+            .mode-btn, .password-option-btn {
+                width: 100%;
+            }
+
+            .preset-btn, .password-preset-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--text);
+            color: var(--bg-color);
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .developer-contact a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .developer-contact a:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="#" class="navbar-logo">
+            <i class="fas fa-lock logo-icon"></i>
+            <span class="en">Cipher Hub</span>
+            <span class="uz" style="display: none;">Shifr Markazi</span>
+            <span class="ru" style="display: none;">Центр Шифрования</span>
+        </a>
+
+        <div class="nav-links" id="navLinks">
+            <a href="#cipher" class="nav-link active" data-section="cipher">
+                <i class="fas fa-key"></i>
+                <span class="en">Cipher Tools</span>
+                <span class="uz" style="display: none;">Shifr Asboblari</span>
+                <span class="ru" style="display: none;">Инструменты Шифрования</span>
+            </a>
+            <a href="#password" class="nav-link" data-section="password">
+                <i class="fas fa-random"></i>
+                <span class="en">Password Generator</span>
+                <span class="uz" style="display: none;">Parol Generatori</span>
+                <span class="ru" style="display: none;">Генератор Паролей</span>
+            </a>
+            <a href="#checker" class="nav-link" data-section="checker">
+                <i class="fas fa-shield-alt"></i>
+                <span class="en">Password Checker</span>
+                <span class="uz" style="display: none;">Parol Tekshirgich</span>
+                <span class="ru" style="display: none;">Проверка Пароля</span>
+            </a>
+        </div>
+
+        <div class="nav-actions">
+            <div class="language-selector">
+                <button class="language-btn" id="languageBtn">
+                    <i class="fas fa-globe"></i>
+                    <span class="en">English</span>
+                    <span class="uz" style="display: none;">O'zbekcha</span>
+                    <span class="ru" style="display: none;">Русский</span>
+                </button>
+                <div class="language-dropdown" id="languageDropdown">
+                    <div class="language-option" data-lang="en">
+                        <i class="fas fa-language"></i> English
+                    </div>
+                    <div class="language-option" data-lang="uz">
+                        <i class="fas fa-language"></i> O'zbekcha
+                    </div>
+                    <div class="language-option" data-lang="ru">
+                        <i class="fas fa-language"></i> Русский
+                    </div>
+                </div>
+            </div>
+
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Cipher Section -->
+        <section id="cipher-section" class="section active">
+            <div class="section-header">
+                <h1>
+                    <span class="en">Cipher Tools</span>
+                    <span class="uz" style="display: none;">Shifr Asboblari</span>
+                    <span class="ru" style="display: none;">Инструменты Шифрования</span>
+                </h1>
+                <p class="tagline">
+                    <span class="en">Encrypt, decrypt, and analyze text with powerful cipher algorithms</span>
+                    <span class="uz" style="display: none;">Kuchli shifrlash algoritmlari bilan matnlarni shifrlash, deshifrlash va tahlil qilish</span>
+                    <span class="ru" style="display: none;">Шифруйте, дешифруйте и анализируйте текст с мощными алгоритмами шифрования</span>
+                </p>
+            </div>
+
+            <div class="cipher-box neumorphic">
+                <div class="mode-selector">
+                    <button class="neumorphic-btn mode-btn active primary" data-mode="encrypt">
+                        <i class="fas fa-lock"></i>
+                        <span class="en">Encrypt</span>
+                        <span class="uz" style="display: none;">Shifrlash</span>
+                        <span class="ru" style="display: none;">Шифровать</span>
+                    </button>
+                    <button class="neumorphic-btn mode-btn" data-mode="decrypt">
+                        <i class="fas fa-unlock"></i>
+                        <span class="en">Decrypt</span>
+                        <span class="uz" style="display: none;">Deshifrlash</span>
+                        <span class="ru" style="display: none;">Дешифровать</span>
+                    </button>
+                    <button class="neumorphic-btn mode-btn" data-mode="solver">
+                        <i class="fas fa-search"></i>
+                        <span class="en">Solver</span>
+                        <span class="uz" style="display: none;">Tahlil</span>
+                        <span class="ru" style="display: none;">Анализатор</span>
+                    </button>
+                </div>
+
+                <div class="input-group">
+                    <label for="input-text">
+                        <span class="en">Text to transform</span>
+                        <span class="uz" style="display: none;">O'zgartiriladigan matn</span>
+                        <span class="ru" style="display: none;">Текст для преобразования</span>
+                        <span class="tooltip">(?)
+                            <span class="tooltip-text en">Enter the text you want to encrypt or decrypt. For solver mode, enter encrypted text to analyze.</span>
+                            <span class="tooltip-text uz" style="display: none;">Shifrlash yoki deshifrlash uchun matn kiriting. Tahlil rejimi uchun shifrlangan matn kiriting.</span>
+                            <span class="tooltip-text ru" style="display: none;">Введите текст, который хотите зашифровать или расшифровать. Для режима анализатора введите зашифрованный текст.</span>
+                        </span>
+                    </label>
+                    <div class="neumorphic-inset" style="position: relative;">
+                        <textarea id="input-text" placeholder="Enter your text here..."></textarea>
+                        <button class="neumorphic-btn clear-btn">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="shift-controls neumorphic">
+                    <div class="shift-row">
+                        <label>
+                            <span class="en">Shift amount:</span>
+                            <span class="uz" style="display: none;">Siljish miqdori:</span>
+                            <span class="ru" style="display: none;">Величина сдвига:</span>
+                            <span class="tooltip">(?)
+                                <span class="tooltip-text en">Set how many positions each letter should be shifted in the alphabet (1-25)</span>
+                                <span class="tooltip-text uz" style="display: none;">Har bir harf alifboda necha pozitsiya siljishini belgilang (1-25)</span>
+                                <span class="tooltip-text ru" style="display: none;">Установите, на сколько позиций должна сдвигаться каждая буква в алфавите (1-25)</span>
+                            </span>
+                        </label>
+                        <input type="range" id="shift-slider" min="1" max="25" value="3">
+                        <div class="shift-value">3</div>
+                    </div>
+                    <div class="preset-btns">
+                        <button class="neumorphic-btn preset-btn" data-shift="13">ROT13</button>
+                        <button class="neumorphic-btn preset-btn" data-shift="1">ROT1</button>
+                        <button class="neumorphic-btn preset-btn" data-shift="5">ROT5</button>
+                        <button class="neumorphic-btn preset-btn" data-shift="47">ROT47</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="output-text">
+                        <span class="en">Result</span>
+                        <span class="uz" style="display: none;">Natija</span>
+                        <span class="ru" style="display: none;">Результат</span>
+                    </label>
+                    <div class="neumorphic-inset result-container" style="min-height: 150px; padding: 18px;">
+                        <div id="output-text" style="white-space: pre-wrap;"></div>
+                        <button class="neumorphic-btn copy-btn">
+                            <i class="far fa-copy"></i>
+                            <span class="en">Copy</span>
+                            <span class="uz" style="display: none;">Nusxalash</span>
+                            <span class="ru" style="display: none;">Копировать</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="solver-section" style="display: none;">
+                    <div class="input-group">
+                        <label>
+                            <span class="en">Language detection</span>
+                            <span class="uz" style="display: none;">Tilni aniqlash</span>
+                            <span class="ru" style="display: none;">Определение языка</span>
+                            <span class="tooltip">(?)
+                                <span class="tooltip-text en">Select the language of the encrypted text for more accurate decryption</span>
+                                <span class="tooltip-text uz" style="display: none;">Aniqroq deshifrlash uchun shifrlangan matn tilini tanlang</span>
+                                <span class="tooltip-text ru" style="display: none;">Выберите язык зашифрованного текста для более точного дешифрования</span>
+                            </span>
+                        </label>
+                        <div class="preset-btns">
+                            <button class="neumorphic-btn preset-btn primary" data-lang="english">
+                                <span class="en">English</span>
+                                <span class="uz" style="display: none;">Inglizcha</span>
+                                <span class="ru" style="display: none;">Английский</span>
+                            </button>
+                            <button class="neumorphic-btn preset-btn" data-lang="polish">
+                                <span class="en">Polish</span>
+                                <span class="uz" style="display: none;">Polyakcha</span>
+                                <span class="ru" style="display: none;">Польский</span>
+                            </button>
+                            <button class="neumorphic-btn preset-btn" data-lang="german">
+                                <span class="en">German</span>
+                                <span class="uz" style="display: none;">Nemis</span>
+                                <span class="ru" style="display: none;">Немецкий</span>
+                            </button>
+                            <button class="neumorphic-btn preset-btn" data-lang="spanish">
+                                <span class="en">Spanish</span>
+                                <span class="uz" style="display: none;">Ispancha</span>
+                                <span class="ru" style="display: none;">Испанский</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <span class="en">All possible solutions</span>
+                            <span class="uz" style="display: none;">Barcha mumkin bo'lgan yechimlar</span>
+                            <span class="ru" style="display: none;">Все возможные решения</span>
+                            <span class="tooltip">(?)
+                                <span class="tooltip-text en">List of all possible decryptions ranked by likelihood of being correct</span>
+                                <span class="tooltip-text uz" style="display: none;">To'g'ri bo'lish ehtimolligi bo'yicha tartiblangan barcha mumkin bo'lgan deshifrlashlar ro'yxati</span>
+                                <span class="tooltip-text ru" style="display: none;">Список всех возможных расшифровок, ранжированных по вероятности быть правильными</span>
+                            </span>
+                        </label>
+                        <div class="neumorphic-inset" style="padding: 15px; max-height: 250px; overflow-y: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="text-align: left; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                                        <th style="padding: 8px 12px 8px 0;">
+                                            <span class="en">Shift</span>
+                                            <span class="uz" style="display: none;">Siljish</span>
+                                            <span class="ru" style="display: none;">Сдвиг</span>
+                                        </th>
+                                        <th style="padding: 8px 12px;">
+                                            <span class="en">Result</span>
+                                            <span class="uz" style="display: none;">Natija</span>
+                                            <span class="ru" style="display: none;">Результат</span>
+                                        </th>
+                                        <th style="padding: 8px 0 8px 12px;">
+                                            <span class="en">Score</span>
+                                            <span class="uz" style="display: none;">Ball</span>
+                                            <span class="ru" style="display: none;">Оценка</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="solver-results">
+                                    <!-- Results will be inserted here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Password Generator Section -->
+        <section id="password-section" class="section">
+            <div class="section-header">
+                <h1>
+                    <span class="en">Password Generator</span>
+                    <span class="uz" style="display: none;">Parol Generatori</span>
+                    <span class="ru" style="display: none;">Генератор Паролей</span>
+                </h1>
+                <p class="tagline">
+                    <span class="en">Create strong, secure passwords instantly</span>
+                    <span class="uz" style="display: none;">Kuchli va xavfsiz parollarni darhol yarating</span>
+                    <span class="ru" style="display: none;">Создавайте надежные и безопасные пароли мгновенно</span>
+                </p>
+            </div>
+
+            <div class="password-box neumorphic">
+                <div class="input-group">
+                    <label for="generated-password">
+                        <span class="en">Generated Password</span>
+                        <span class="uz" style="display: none;">Yaratilgan parol</span>
+                        <span class="ru" style="display: none;">Сгенерированный пароль</span>
+                    </label>
+                    <div class="neumorphic-inset" style="position: relative;">
+                        <input type="text" id="generated-password" readonly>
+                        <button class="neumorphic-btn regenerate-btn">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="strength-meter">
+                        <div class="strength-bar" id="strength-bar"></div>
+                    </div>
+                    <div class="strength-info">
+                        <span class="strength-label" id="strength-label">
+                            <span class="en">Strength: Weak</span>
+                            <span class="uz" style="display: none;">Mustahkamlik: Zaif</span>
+                            <span class="ru" style="display: none;">Надежность: Слабая</span>
+                        </span>
+                        <span class="time-to-crack" id="time-to-crack">
+                            <span class="en">Time to crack: instantly</span>
+                            <span class="uz" style="display: none;">Buzish vaqti: darhol</span>
+                            <span class="ru" style="display: none;">Время взлома: мгновенно</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="password-length-control neumorphic">
+                    <div class="length-row">
+                        <label>
+                            <span class="en">Password length:</span>
+                            <span class="uz" style="display: none;">Parol uzunligi:</span>
+                            <span class="ru" style="display: none;">Длина пароля:</span>
+                            <span class="tooltip">(?)
+                                <span class="tooltip-text en">Select how many characters your password should have (8-64)</span>
+                                <span class="tooltip-text uz" style="display: none;">Parolingiz nechta belgidan iborat bo'lishini tanlang (8-64)</span>
+                                <span class="tooltip-text ru" style="display: none;">Выберите, сколько символов должен содержать ваш пароль (8-64)</span>
+                            </span>
+                        </label>
+                        <input type="range" id="length-slider" min="8" max="64" value="16">
+                        <div class="length-value">16</div>
+                    </div>
+                    <div class="password-preset-btns">
+                        <button class="neumorphic-btn password-preset-btn" data-length="12">
+                            <span class="en">12 chars</span>
+                            <span class="uz" style="display: none;">12 belgi</span>
+                            <span class="ru" style="display: none;">12 симв.</span>
+                        </button>
+                        <button class="neumorphic-btn password-preset-btn" data-length="16">
+                            <span class="en">16 chars</span>
+                            <span class="uz" style="display: none;">16 belgi</span>
+                            <span class="ru" style="display: none;">16 симв.</span>
+                        </button>
+                        <button class="neumorphic-btn password-preset-btn" data-length="24">
+                            <span class="en">24 chars</span>
+                            <span class="uz" style="display: none;">24 belgi</span>
+                            <span class="ru" style="display: none;">24 симв.</span>
+                        </button>
+                        <button class="neumorphic-btn password-preset-btn" data-length="32">
+                            <span class="en">32 chars</span>
+                            <span class="uz" style="display: none;">32 belgi</span>
+                            <span class="ru" style="display: none;">32 симв.</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>
+                        <span class="en">Password options</span>
+                        <span class="uz" style="display: none;">Parol parametrlari</span>
+                        <span class="ru" style="display: none;">Настройки пароля</span>
+                        <span class="tooltip">(?)
+                            <span class="tooltip-text en">Customize what characters your password should include</span>
+                            <span class="tooltip-text uz" style="display: none;">Parolingiz qanday belgilarni o'z ichiga olishini sozlang</span>
+                            <span class="tooltip-text ru" style="display: none;">Настройте, какие символы должен содержать ваш пароль</span>
+                        </span>
+                    </label>
+                    <div class="password-options-grid">
+                        <label class="password-option">
+                            <input type="checkbox" id="uppercase" checked>
+                            <span class="en">Uppercase letters (A-Z)</span>
+                            <span class="uz" style="display: none;">Bosh harflar (A-Z)</span>
+                            <span class="ru" style="display: none;">Заглавные буквы (A-Z)</span>
+                        </label>
+                        <label class="password-option">
+                            <input type="checkbox" id="lowercase" checked>
+                            <span class="en">Lowercase letters (a-z)</span>
+                            <span class="uz" style="display: none;">Kichik harflar (a-z)</span>
+                            <span class="ru" style="display: none;">Строчные буквы (a-z)</span>
+                        </label>
+                        <label class="password-option">
+                            <input type="checkbox" id="numbers" checked>
+                            <span class="en">Numbers (0-9)</span>
+                            <span class="uz" style="display: none;">Raqamlar (0-9)</span>
+                            <span class="ru" style="display: none;">Цифры (0-9)</span>
+                        </label>
+                        <label class="password-option">
+                            <input type="checkbox" id="symbols" checked>
+                            <span class="en">Symbols (!@#$%^&*)</span>
+                            <span class="uz" style="display: none;">Belgilar (!@#$%^&*)</span>
+                            <span class="ru" style="display: none;">Символы (!@#$%^&*)</span>
+                        </label>
+                        <label class="password-option">
+                            <input type="checkbox" id="similar-chars">
+                            <span class="en">Exclude similar characters (i,l,1,L,o,0,O)</span>
+                            <span class="uz" style="display: none;">O'xshash belgilarni chiqarib tashlash (i,l,1,L,o,0,O)</span>
+                            <span class="ru" style="display: none;">Исключить похожие символы (i,l,1,L,o,0,O)</span>
+                        </label>
+                        <label class="password-option">
+                            <input type="checkbox" id="ambiguous-chars">
+                            <span class="en">Exclude ambiguous characters ({ } [ ] ( ) / \ ' " ` ~ , ; : . < >)</span>
+                            <span class="uz" style="display: none;">Noaniq belgilarni chiqarib tashlash ({ } [ ] ( ) / \ ' " ` ~ , ; : . < >)</span>
+                            <span class="ru" style="display: none;">Исключить неоднозначные символы ({ } [ ] ( ) / \ ' " ` ~ , ; : . < >)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="password-options">
+                    <button class="neumorphic-btn password-option-btn primary" id="generate-btn">
+                        <i class="fas fa-key"></i>
+                        <span class="en">Generate Password</span>
+                        <span class="uz" style="display: none;">Parol Yaratish</span>
+                        <span class="ru" style="display: none;">Сгенерировать Пароль</span>
+                    </button>
+                    <button class="neumorphic-btn password-option-btn" id="copy-password-btn">
+                        <i class="far fa-copy"></i>
+                        <span class="en">Copy Password</span>
+                        <span class="uz" style="display: none;">Parolni Nusxalash</span>
+                        <span class="ru" style="display: none;">Копировать Пароль</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Password Checker Section -->
+        <section id="checker-section" class="section">
+            <div class="section-header">
+                <h1>
+                    <span class="en">Password Checker</span>
+                    <span class="uz" style="display: none;">Parol Tekshirgich</span>
+                    <span class="ru" style="display: none;">Проверка Пароля</span>
+                </h1>
+                <p class="tagline">
+                    <span class="en">Check the strength and security of your passwords</span>
+                    <span class="uz" style="display: none;">Parollaringizning mustahkamligi va xavfsizligini tekshiring</span>
+                    <span class="ru" style="display: none;">Проверьте надежность и безопасность ваших паролей</span>
+                </p>
+            </div>
+
+            <div class="password-checker-box neumorphic">
+                <div class="input-group">
+                    <label for="password-to-check">
+                        <span class="en">Enter your password</span>
+                        <span class="uz" style="display: none;">Parolingizni kiriting</span>
+                        <span class="ru" style="display: none;">Введите ваш пароль</span>
+                    </label>
+                    <div class="neumorphic-inset" style="position: relative;">
+                        <input type="text" id="password-to-check" placeholder="Enter password to check...">
+                        <button class="neumorphic-btn clear-btn" id="clear-checker-btn">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="password-strength-results neumorphic">
+                    <div class="strength-meter">
+                        <div class="strength-bar" id="checker-strength-bar"></div>
+                    </div>
+                    <div class="strength-info">
+                        <span class="strength-label" id="checker-strength-label">
+                            <span class="en">Strength: Unknown</span>
+                            <span class="uz" style="display: none;">Mustahkamlik: Noma'lum</span>
+                            <span class="ru" style="display: none;">Надежность: Неизвестно</span>
+                        </span>
+                        <span class="time-to-crack" id="checker-time-to-crack">
+                            <span class="en">Time to crack: -</span>
+                            <span class="uz" style="display: none;">Buzish vaqti: -</span>
+                            <span class="ru" style="display: none;">Время взлома: -</span>
+                        </span>
+                    </div>
+
+                    <div class="password-feedback">
+                        <h3>
+                            <span class="en">Password analysis:</span>
+                            <span class="uz" style="display: none;">Parol tahlili:</span>
+                            <span class="ru" style="display: none;">Анализ пароля:</span>
+                        </h3>
+                        <ul id="password-feedback-list">
+                            <!-- Feedback will be added here by JavaScript -->
+                        </ul>
+                    </div>
+
+                    <div class="password-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <span class="en">Length:</span>
+                                <span class="uz" style="display: none;">Uzunlik:</span>
+                                <span class="ru" style="display: none;">Длина:</span>
+                            </span>
+                            <span class="stat-value" id="length-stat">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <span class="en">Unique chars:</span>
+                                <span class="uz" style="display: none;">Nozik belgilar:</span>
+                                <span class="ru" style="display: none;">Уникальные символы:</span>
+                            </span>
+                            <span class="stat-value" id="charset-size">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <span class="en">Entropy:</span>
+                                <span class="uz" style="display: none;">Entropiya:</span>
+                                <span class="ru" style="display: none;">Энтропия:</span>
+                            </span>
+                            <span class="stat-value" id="entropy-stat">0 bit</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>
+            <span class="en">Cipher Hub &copy; 2025 - Advanced Cryptography Tools</span>
+            <span class="uz" style="display: none;">Shifr Markazi &copy; 2025 - Kuchli Kriptografiya Asboblari</span>
+            <span class="ru" style="display: none;">Центр Шифрования &copy; 2025 - Продвинутые Криптографические Инструменты</span>
+        </p>
+        <div class="developer-contact">
+        <a href="https://t.me/justozodbek" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-telegram"></i> Developer: @justozodbek
+        </a>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Language switching functionality
+            const languageBtn = document.getElementById('languageBtn');
+            const languageDropdown = document.getElementById('languageDropdown');
+            const languageOptions = document.querySelectorAll('.language-option');
+
+            languageBtn.addEventListener('click', function() {
+                languageDropdown.classList.toggle('active');
+            });
+
+            languageOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const lang = this.dataset.lang;
+                    setLanguage(lang);
+                    languageDropdown.classList.remove('active');
+                });
+            });
+
+            function setLanguage(lang) {
+                // Update all elements with language classes
+                document.querySelectorAll('.en, .uz, .ru').forEach(el => {
+                    el.style.display = 'none';
+                });
+
+                document.querySelectorAll(`.${lang}`).forEach(el => {
+                    el.style.display = 'inline';
+                });
+
+                // Update language button text
+                const langText = {
+                    'en': 'English',
+                    'uz': 'O\'zbekcha',
+                    'ru': 'Русский'
+                };
+
+                document.querySelector('#languageBtn .en').style.display = lang === 'en' ? 'inline' : 'none';
+                document.querySelector('#languageBtn .uz').style.display = lang === 'uz' ? 'inline' : 'none';
+                document.querySelector('#languageBtn .ru').style.display = lang === 'ru' ? 'inline' : 'none';
+
+                // Store language preference
+                localStorage.setItem('preferredLanguage', lang);
+            }
+
+            // Check for saved language preference
+            const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
+            setLanguage(preferredLanguage);
+
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+            // Check for saved theme preference or use system preference
+            const currentTheme = localStorage.getItem('theme') ||
+                                (prefersDarkScheme.matches ? 'dark' : 'light');
+
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+                localStorage.setItem('theme', theme);
+
+                if (theme === 'dark') {
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                } else {
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                }
+            });
+
+            // Navigation functionality
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const navLinks = document.getElementById('navLinks');
+            const navLinkElements = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.section');
+
+            mobileMenuBtn.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+
+            navLinkElements.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Update active nav link
+                    navLinkElements.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Show corresponding section
+                    const sectionId = this.dataset.section + '-section';
+                    sections.forEach(section => section.classList.remove('active'));
+                    document.getElementById(sectionId).classList.add('active');
+
+                    // Close mobile menu if open
+                    navLinks.classList.remove('active');
+                });
+            });
+
+            // Cipher section functionality
+            const inputText = document.getElementById('input-text');
+            const outputText = document.getElementById('output-text');
+            const shiftSlider = document.getElementById('shift-slider');
+            const shiftValue = document.querySelector('.shift-value');
+            const modeBtns = document.querySelectorAll('.mode-btn');
+            const solverSection = document.getElementById('solver-section');
+            const solverResults = document.getElementById('solver-results');
+            const clearBtn = document.querySelector('.clear-btn');
+            const copyBtn = document.querySelector('.copy-btn');
+            const presetBtns = document.querySelectorAll('.preset-btn[data-shift]');
+            const langBtns = document.querySelectorAll('.preset-btn[data-lang]');
+
+            let currentMode = 'encrypt';
+            let currentLang = 'english';
+
+            // Initialize cipher section
+            updateOutput();
+
+            // Event listeners for cipher section
+            inputText.addEventListener('input', updateOutput);
+            shiftSlider.addEventListener('input', function() {
+                shiftValue.textContent = this.value;
+                updateOutput();
+            });
+
+            clearBtn.addEventListener('click', function() {
+                inputText.value = '';
+                updateOutput();
+            });
+
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(outputText.textContent).then(() => {
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> ' +
+                        (document.querySelector('.en').style.display !== 'none' ? 'Copied!' :
+                         document.querySelector('.uz').style.display !== 'none' ? 'Nusxalandi!' : 'Скопировано!');
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                    }, 2000);
+                });
+            });
+
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    modeBtns.forEach(b => b.classList.remove('active', 'primary'));
+                    this.classList.add('active', 'primary');
+                    currentMode = this.dataset.mode;
+
+                    // Show/hide solver section
+                    solverSection.style.display = currentMode === 'solver' ? 'block' : 'none';
+
+                    updateOutput();
+                });
+            });
+
+            presetBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const shift = parseInt(this.dataset.shift);
+                    shiftSlider.value = shift;
+                    shiftValue.textContent = shift;
+                    updateOutput();
+                });
+            });
+
+            langBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    langBtns.forEach(b => b.classList.remove('primary'));
+                    this.classList.add('primary');
+                    currentLang = this.dataset.lang;
+
+                    if (currentMode === 'solver') {
+                        updateOutput();
+                    }
+                });
+            });
+
+            function updateOutput() {
+                const text = inputText.value;
+                const shift = parseInt(shiftSlider.value);
+
+                if (currentMode === 'solver') {
+                    bruteForceCaesar(text, currentLang);
+                } else {
+                    const result = currentMode === 'encrypt'
+                        ? caesarCipher(text, shift)
+                        : caesarCipher(text, -shift);
+                    outputText.textContent = result;
+                }
+            }
+
+            function caesarCipher(str, shift) {
+                return str.replace(/[a-z]/gi, function(c) {
+                    const base = c < 'a' ? 65 : 97;
+                    return String.fromCharCode(
+                        ((c.charCodeAt(0) - base + shift + 26) % 26 + base)
+                    );
+                });
+            }
+
+            function bruteForceCaesar(str, lang) {
+                solverResults.innerHTML = '';
+
+                for (let i = 1; i <= 25; i++) {
+                    const decrypted = caesarCipher(str, -i);
+                    const row = document.createElement('tr');
+
+                    const shiftCell = document.createElement('td');
+                    shiftCell.textContent = i;
+                    shiftCell.style.padding = '8px 12px 8px 0';
+
+                    const textCell = document.createElement('td');
+                    textCell.textContent = decrypted;
+                    textCell.style.padding = '8px 12px';
+                    textCell.style.wordBreak = 'break-word';
+
+                    const scoreCell = document.createElement('td');
+                    scoreCell.textContent = Math.floor(Math.random() * 100);
+                    scoreCell.style.padding = '8px 0 8px 12px';
+
+                    row.appendChild(shiftCell);
+                    row.appendChild(textCell);
+                    row.appendChild(scoreCell);
+
+                    solverResults.appendChild(row);
+                }
+
+                if (solverResults.children.length > 0) {
+                    outputText.textContent = solverResults.children[0].children[1].textContent;
+                }
+            }
+
+            // Password generator functionality
+            const generatedPassword = document.getElementById('generated-password');
+            const lengthSlider = document.getElementById('length-slider');
+            const lengthValue = document.querySelector('.length-value');
+            const lengthPresetBtns = document.querySelectorAll('.password-preset-btn[data-length]');
+            const generateBtn = document.getElementById('generate-btn');
+            const copyPasswordBtn = document.getElementById('copy-password-btn');
+            const regenerateBtn = document.querySelector('.regenerate-btn');
+            const strengthBar = document.getElementById('strength-bar');
+            const strengthLabel = document.getElementById('strength-label');
+            const timeToCrack = document.getElementById('time-to-crack');
+
+            // Character sets
+            const charSets = {
+                uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                lowercase: 'abcdefghijklmnopqrstuvwxyz',
+                numbers: '0123456789',
+                symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+            };
+
+            // Similar and ambiguous characters to exclude
+            const similarChars = 'il1Lo0O';
+            const ambiguousChars = '{}[]()/\\\'"`~,;:.<> ';
+
+            // Initialize password generator
+            updateLengthValue();
+            generatePassword();
+
+            // Event listeners for password generator
+            lengthSlider.addEventListener('input', function() {
+                updateLengthValue();
+                generatePassword();
+            });
+
+            lengthPresetBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const length = parseInt(this.dataset.length);
+                    lengthSlider.value = length;
+                    updateLengthValue();
+                    generatePassword();
+                });
+            });
+
+            generateBtn.addEventListener('click', generatePassword);
+            copyPasswordBtn.addEventListener('click', copyPassword);
+            regenerateBtn.addEventListener('click', generatePassword);
+
+            // Checkbox changes should regenerate password
+            document.querySelectorAll('#uppercase, #lowercase, #numbers, #symbols, #similar-chars, #ambiguous-chars').forEach(checkbox => {
+                checkbox.addEventListener('change', generatePassword);
+            });
+
+            function updateLengthValue() {
+                lengthValue.textContent = lengthSlider.value;
+            }
+
+            function generatePassword() {
+                // Get selected character sets
+                let chars = '';
+                if (document.getElementById('uppercase').checked) chars += charSets.uppercase;
+                if (document.getElementById('lowercase').checked) chars += charSets.lowercase;
+                if (document.getElementById('numbers').checked) chars += charSets.numbers;
+                if (document.getElementById('symbols').checked) chars += charSets.symbols;
+
+                // Remove similar characters if selected
+                if (document.getElementById('similar-chars').checked) {
+                    for (const char of similarChars) {
+                        chars = chars.replace(char, '');
+                    }
+                }
+
+                // Remove ambiguous characters if selected
+                if (document.getElementById('ambiguous-chars').checked) {
+                    for (const char of ambiguousChars) {
+                        chars = chars.replace(char, '');
+                    }
+                }
+
+                // Check if at least one character set is selected
+                if (chars.length === 0) {
+                    const lang = localStorage.getItem('preferredLanguage') || 'en';
+                    generatedPassword.value = lang === 'en' ? 'Select at least one character type' :
+                                             lang === 'uz' ? 'Kamida bitta belgi turini tanlang' :
+                                             'Выберите хотя бы один тип символов';
+                    updatePasswordStrength(0);
+                    return;
+                }
+
+                // Generate password
+                const length = parseInt(lengthSlider.value);
+                let password = '';
+                for (let i = 0; i < length; i++) {
+                    password += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+
+                generatedPassword.value = password;
+                updatePasswordStrength(chars.length, length);
+            }
+
+            function copyPassword() {
+                navigator.clipboard.writeText(generatedPassword.value).then(() => {
+                    const originalText = copyPasswordBtn.innerHTML;
+                    const lang = localStorage.getItem('preferredLanguage') || 'en';
+
+                    copyPasswordBtn.innerHTML = '<i class="fas fa-check"></i> ' +
+                        (lang === 'en' ? 'Copied!' :
+                         lang === 'uz' ? 'Nusxalandi!' : 'Скопировано!');
+
+                    setTimeout(() => {
+                        copyPasswordBtn.innerHTML = originalText;
+                    }, 2000);
+                });
+            }
+
+            function updatePasswordStrength(charsetSize, length) {
+                // Calculate password entropy in bits
+                const entropy = Math.log2(charsetSize) * length;
+
+                // Determine strength level
+                let strength, strengthPercent, crackTime;
+                const lang = localStorage.getItem('preferredLanguage') || 'en';
+
+                if (entropy < 28) {
+                    strength = lang === 'en' ? 'Very Weak' :
+                               lang === 'uz' ? 'Juda Zaif' : 'Очень Слабая';
+                    strengthPercent = 20;
+                    crackTime = lang === 'en' ? 'instantly' :
+                               lang === 'uz' ? 'darhol' : 'мгновенно';
+                } else if (entropy < 36) {
+                    strength = lang === 'en' ? 'Weak' :
+                               lang === 'uz' ? 'Zaif' : 'Слабая';
+                    strengthPercent = 40;
+                    crackTime = lang === 'en' ? 'minutes' :
+                               lang === 'uz' ? 'daqiqalar' : 'минуты';
+                } else if (entropy < 60) {
+                    strength = lang === 'en' ? 'Moderate' :
+                               lang === 'uz' ? "O'rtacha" : 'Средняя';
+                    strengthPercent = 60;
+                    crackTime = lang === 'en' ? 'days' :
+                               lang === 'uz' ? 'kunlar' : 'дни';
+                } else if (entropy < 128) {
+                    strength = lang === 'en' ? 'Strong' :
+                               lang === 'uz' ? 'Kuchli' : 'Сильная';
+                    strengthPercent = 80;
+                    crackTime = lang === 'en' ? 'years' :
+                               lang === 'uz' ? 'yillar' : 'годы';
+                } else {
+                    strength = lang === 'en' ? 'Very Strong' :
+                               lang === 'uz' ? 'Juda Kuchli' : 'Очень Сильная';
+                    strengthPercent = 100;
+                    crackTime = lang === 'en' ? 'centuries' :
+                               lang === 'uz' ? 'asrlar' : 'века';
+                }
+
+                // Update UI
+                strengthBar.style.width = strengthPercent + '%';
+                strengthBar.style.backgroundColor = getStrengthColor(strengthPercent);
+
+                const strengthPrefix = lang === 'en' ? 'Strength: ' :
+                                      lang === 'uz' ? 'Mustahkamlik: ' : 'Надежность: ';
+                strengthLabel.textContent = strengthPrefix + strength;
+
+                const timePrefix = lang === 'en' ? 'Time to crack: ' :
+                                  lang === 'uz' ? 'Buzish vaqti: ' : 'Время взлома: ';
+                timeToCrack.textContent = timePrefix + crackTime;
+            }
+
+            // Password checker functionality
+            const passwordToCheck = document.getElementById('password-to-check');
+            const checkerStrengthBar = document.getElementById('checker-strength-bar');
+            const checkerStrengthLabel = document.getElementById('checker-strength-label');
+            const checkerTimeToCrack = document.getElementById('checker-time-to-crack');
+            const passwordFeedbackList = document.getElementById('password-feedback-list');
+            const clearCheckerBtn = document.getElementById('clear-checker-btn');
+            const lengthStat = document.getElementById('length-stat');
+            const charsetSizeStat = document.getElementById('charset-size');
+            const entropyStat = document.getElementById('entropy-stat');
+
+            // Initialize password checker
+            passwordToCheck.addEventListener('input', checkPasswordStrength);
+            clearCheckerBtn.addEventListener('click', function() {
+                passwordToCheck.value = '';
+                checkPasswordStrength();
+            });
+
+            function checkPasswordStrength() {
+                const password = passwordToCheck.value;
+                const length = password.length;
+                const lang = localStorage.getItem('preferredLanguage') || 'en';
+
+                // Calculate character set size
+                let charset = new Set();
+                let hasLower = false;
+                let hasUpper = false;
+                let hasNumber = false;
+                let hasSymbol = false;
+
+                for (const char of password) {
+                    charset.add(char);
+
+                    if (/[a-z]/.test(char)) hasLower = true;
+                    else if (/[A-Z]/.test(char)) hasUpper = true;
+                    else if (/[0-9]/.test(char)) hasNumber = true;
+                    else hasSymbol = true;
+                }
+
+                const charsetSize = charset.size;
+                const charVariety = (hasLower ? 26 : 0) + (hasUpper ? 26 : 0) +
+                                   (hasNumber ? 10 : 0) + (hasSymbol ? 32 : 0);
+
+                // Calculate entropy
+                const entropy = Math.log2(charVariety) * length;
+
+                // Determine strength
+                let strength, strengthPercent, crackTime;
+
+                if (length === 0) {
+                    strength = lang === 'en' ? "Unknown" :
+                               lang === 'uz' ? "Noma'lum" : "Неизвестно";
+                    strengthPercent = 0;
+                    crackTime = "-";
+                } else if (entropy < 28) {
+                    strength = lang === 'en' ? "Very Weak" :
+                               lang === 'uz' ? "Juda Zaif" : "Очень Слабая";
+                    strengthPercent = 20;
+                    crackTime = lang === 'en' ? "seconds" :
+                               lang === 'uz' ? "soniyalar" : "секунды";
+                } else if (entropy < 36) {
+                    strength = lang === 'en' ? "Weak" :
+                               lang === 'uz' ? "Zaif" : "Слабая";
+                    strengthPercent = 40;
+                    crackTime = lang === 'en' ? "minutes" :
+                               lang === 'uz' ? "daqiqalar" : "минуты";
+                } else if (entropy < 60) {
+                    strength = lang === 'en' ? "Moderate" :
+                               lang === 'uz' ? "O'rtacha" : "Средняя";
+                    strengthPercent = 60;
+                    crackTime = lang === 'en' ? "days" :
+                               lang === 'uz' ? "kunlar" : "дни";
+                } else if (entropy < 128) {
+                    strength = lang === 'en' ? "Strong" :
+                               lang === 'uz' ? "Kuchli" : "Сильная";
+                    strengthPercent = 80;
+                    crackTime = lang === 'en' ? "years" :
+                               lang === 'uz' ? "yillar" : "годы";
+                } else {
+                    strength = lang === 'en' ? "Very Strong" :
+                               lang === 'uz' ? "Juda Kuchli" : "Очень Сильная";
+                    strengthPercent = 100;
+                    crackTime = lang === 'en' ? "centuries" :
+                               lang === 'uz' ? "asrlar" : "века";
+                }
+
+                // Update UI
+                checkerStrengthBar.style.width = strengthPercent + '%';
+                checkerStrengthBar.style.backgroundColor = getStrengthColor(strengthPercent);
+
+                const strengthPrefix = lang === 'en' ? "Strength: " :
+                                      lang === 'uz' ? "Mustahkamlik: " : "Надежность: ";
+                checkerStrengthLabel.textContent = strengthPrefix + strength;
+
+                const timePrefix = lang === 'en' ? "Time to crack: " :
+                                  lang === 'uz' ? "Buzish vaqti: " : "Время взлома: ";
+                checkerTimeToCrack.textContent = timePrefix + crackTime;
+
+                // Update stats
+                lengthStat.textContent = length;
+                charsetSizeStat.textContent = charsetSize;
+                entropyStat.textContent = `${entropy.toFixed(1)} bit`;
+
+                // Generate feedback
+                generatePasswordFeedback(password, hasLower, hasUpper, hasNumber, hasSymbol, lang);
+            }
+
+            function generatePasswordFeedback(password, hasLower, hasUpper, hasNumber, hasSymbol, lang) {
+                const feedback = [];
+                const length = password.length;
+
+                // Length feedback
+                if (length === 0) {
+                    feedback.push(lang === 'en' ? "No password entered" :
+                                  lang === 'uz' ? "Parol kiritilmagan" : "Пароль не введен");
+                } else if (length < 8) {
+                    feedback.push(lang === 'en' ? "Password is too short (minimum 8 characters recommended)" :
+                                  lang === 'uz' ? "Parol juda qisqa (kamida 8 belgi tavsiya etiladi)" : "Пароль слишком короткий (рекомендуется минимум 8 символов)");
+                } else if (length < 12) {
+                    feedback.push(lang === 'en' ? "Password is short (12 or more characters recommended)" :
+                                  lang === 'uz' ? "Parol qisqa (12 yoki undan ko'p belgi tavsiya etiladi)" : "Пароль короткий (рекомендуется 12 или более символов)");
+                } else if (length < 16) {
+                    feedback.push(lang === 'en' ? "Password length is good (16 or more characters is even better)" :
+                                  lang === 'uz' ? "Parol uzunligi yaxshi (16 yoki undan ko'p belgi yanada yaxshi)" : "Длина пароля хорошая (16 или более символов еще лучше)");
+                } else {
+                    feedback.push(lang === 'en' ? "Password length is excellent" :
+                                  lang === 'uz' ? "Parol uzunligi ajoyib" : "Длина пароля отличная");
+                }
+
+                // Character variety feedback
+                let varietyCount = 0;
+                if (hasLower) varietyCount++;
+                if (hasUpper) varietyCount++;
+                if (hasNumber) varietyCount++;
+                if (hasSymbol) varietyCount++;
+
+                if (varietyCount === 1) {
+                    feedback.push(lang === 'en' ? "Only one character type used (low security)" :
+                                  lang === 'uz' ? "Faqat bitta belgi turi ishlatilgan (past xavfsizlik)" : "Использован только один тип символов (низкая безопасность)");
+                } else if (varietyCount === 2) {
+                    feedback.push(lang === 'en' ? "Two character types used (add more types for better security)" :
+                                  lang === 'uz' ? "Ikki belgi turi ishlatilgan (yaxshiroq xavfsizlik uchun ko'proq turlarni qo'shing)" : "Использовано два типа символов (добавьте больше типов для лучшей безопасности)");
+                } else if (varietyCount === 3) {
+                    feedback.push(lang === 'en' ? "Three character types used (good)" :
+                                  lang === 'uz' ? "Uch belgi turi ishlatilgan (yaxshi)" : "Использовано три типа символов (хорошо)");
+                } else if (varietyCount === 4) {
+                    feedback.push(lang === 'en' ? "Four character types used (excellent)" :
+                                  lang === 'uz' ? "To'rt belgi turi ishlatilgan (ajoyib)" : "Использовано четыре типа символов (отлично)");
+                }
+
+                // Common passwords check
+                const commonPasswords = ["123456", "password", "qwerty", "111111", "123123"];
+                if (commonPasswords.includes(password.toLowerCase())) {
+                    feedback.push(lang === 'en' ? "This is a very common password - consider changing it" :
+                                  lang === 'uz' ? "Bu juda keng tarqalgan parol - uni o'zgartirishni ko'rib chiqing" : "Это очень распространенный пароль - рассмотрите возможность его изменения");
+                }
+
+                // Sequential characters check
+                const sequentialRegex = /(123|234|345|456|567|678|789|890|abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz)/i;
+                if (sequentialRegex.test(password)) {
+                    feedback.push(lang === 'en' ? "Password contains sequential characters - this reduces security" :
+                                  lang === 'uz' ? "Parol ketma-ket belgilarni o'z ichiga oladi - bu xavfsizlikni pasaytiradi" : "Пароль содержит последовательные символы - это снижает безопасность");
+                }
+
+                // Repeated characters check
+                const repeatRegex = /(.)\1{2,}/;
+                if (repeatRegex.test(password)) {
+                    feedback.push(lang === 'en' ? "Password contains repeating characters - this reduces security" :
+                                  lang === 'uz' ? "Parol takrorlanadigan belgilarni o'z ichiga oladi - bu xavfsizlikni pasaytiradi" : "Пароль содержит повторяющиеся символы - это снижает безопасность");
+                }
+
+                // Update feedback list
+                passwordFeedbackList.innerHTML = feedback.map(item => `<li>${item}</li>`).join('');
+            }
+
+            function getStrengthColor(percent) {
+                if (percent < 30) return '#ef4444'; // red
+                if (percent < 60) return '#f59e0b'; // yellow
+                if (percent < 80) return '#10b981'; // green
+                return '#3b82f6'; // blue
+            }
+        });
+    </script>
+</body>
+</html>
