@@ -60,9 +60,5 @@ Kriptografiya va parol boshqarish vositalari to'plami.
 Savollar yoki takliflar uchun:
 - Telegram: [@justozodbek](https://t.me/justozodbek)
 
-## 📜 Litsenziya
-Shaxsiy va o'quv maqsadlarida bepul foydalanish mumkin.
-
 ---
 ⭐ Agar dastur sizga foydali bo'lsa, yulduzcha qo'yishni unutmang!
-```
