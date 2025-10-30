@@ -1,6 +1,6 @@
-# 🌐 Cpher Tools
+# 🌐 Cipher Tools
 
-![Banner](https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3eThlYjVzdnpmbWwyZDhjazA5OHhjbG80cjNsdHJjMzc2czAxMzkwZCZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/PTBVMsYIOB0SBP4MVe/giphy.gif)
+![Banner](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHlkcXRnYW5objAxMmNjZDcwMmV4d2RkNW5jdHZkNnFqOWNnY2loaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PTBVMsYIOB0SBP4MVe/giphy.gif)
 
 > ✨ A modern, responsive, and creative website built with love and clean code.
 
